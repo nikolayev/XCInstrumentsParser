@@ -1,0 +1,58 @@
+pipeline {
+    parameters {
+        string(defaultValue: "master", name: 'BRANCH')
+        choice(name: 'XCODE_VERSION', choices: ['11.2.1'])
+    }
+    agent none
+    options {
+        skipDefaultCheckout()
+        timestamps()
+        ansiColor('xterm')
+        timeout(time: 15, unit: 'MINUTES')
+    }
+    stages {
+        stage('Build XCInstrumentsParser') {
+            agent {
+                node {
+                    label "osxvm"
+                }
+            }
+            stages {
+                stage('select xcode version') {
+                    steps {
+                        script {
+                            sh """
+                            xcversion select $XCODE_VERSION --symlink
+                            """
+                        }
+                    }
+                }
+                stage('Checkout XCInstrumentsParser') {
+                    steps {
+                        script {
+                            git credentialsId: 'github-service-account', branch: BRANCH, url: 'https://github.com/nikolayev/XCInstrumentsParser.git'
+                        }
+                    }
+                }
+
+                stage('Build XCInstrumentsParser') {
+                    steps {
+                        script {
+                            dir('XCInstrumentsParser') {
+                                sh """xcodebuild build"""
+                            }
+
+                        }
+                    }
+                }
+                stage('Archive') {
+                    steps {
+                        script {
+                            archiveArtifacts artifacts: '**/XCInstrumentsParser'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
