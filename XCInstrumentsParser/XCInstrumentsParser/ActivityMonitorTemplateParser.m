@@ -79,11 +79,12 @@
     // 00:00.000.000 -> 00:00
     NSString *secondsFormat = [[nanoSecondsString componentsSeparatedByString:@"."] firstObject];
     // 00:00 -> 00
+    NSString *onlyMinutes = [[secondsFormat componentsSeparatedByString:@":"] firstObject];
     NSString *onlySeconds = [[secondsFormat componentsSeparatedByString:@":"] lastObject];
-    if ([onlySeconds length] == 2 && [onlySeconds hasPrefix:@"0"]) {
-        onlySeconds = [onlySeconds substringFromIndex:1];
-    }
-    return [onlySeconds stringByAppendingString:@"s"];
+    NSInteger minutes = [onlyMinutes integerValue];
+    NSInteger seconds = [onlySeconds integerValue];
+    NSInteger totalSeconds = 60 * minutes + seconds;
+    return [NSString stringWithFormat:@"%lds", (long)totalSeconds];
 }
 
 @end
