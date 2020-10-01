@@ -88,11 +88,15 @@ int main(int argc, const char * argv[]) {
                 [standardController instrumentChangedTableRequirements];
                 XRAnalysisCoreDetailViewController *detailController = GetVariable(standardController, _detailController);
                 [detailController restoreViewState];
+
+                // XRContextFromDetailNode isn't available anymore. This is commented out for now until better solution is found.
+                /*
                 XRAnalysisCoreDetailNode *detailNode = GetVariable(detailController, _firstNode);
                 while (detailNode) {
                     [contexts addObject:XRContextFromDetailNode(detailController, detailNode)];
                     detailNode = detailNode.nextSibling;
                 }
+                */
             }
             if ([instrumentID isEqualToString:allocationsId]) {
                 NSArray<NSString *> *results = [AllocationsTemplateParser parseAllocationsWithInstrument:instrument];
@@ -104,6 +108,7 @@ int main(int argc, const char * argv[]) {
                 }
                 printf("RAM allocations end.\n");
             } else if ([instrumentID isEqualToString:activityMonitorId]) {
+                // CPU instrument analizer won't work until we fix XRContextFromDetailNode
                 NSArray<NSString *> *results = [ActivityMonitorTemplateParser parseCPUWithInstrument:instrument contexts: contexts];
                 XRRun *run = [[instrument allRuns] lastObject];
                 printf("\nCPU results since %lld:\n", timeIntervalFromRun(run));
